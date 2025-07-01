@@ -133,7 +133,7 @@ def generate_and_display():
 
         for d in tbas:
             # Layout: date | dropdown | confirm button
-            col_date, col_sel, col_btn = st.columns([1, 2, 0.5])
+            col_date, col_sel, col_btn = st.columns([0.5, 0.5, 0.5])
             with col_date:
                 display_date = d.strftime("%d %a")
                 # Inline highlighting if today
