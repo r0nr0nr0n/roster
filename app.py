@@ -4,7 +4,7 @@ from datetime import datetime
 from helpers import get_meeting_dates, generate_roster, get_sg_public_holidays
 
 st.set_page_config(page_title="Bible Study Roster Generator", layout="centered")
-st.title("\ud83d\udcd6 Bible Study Roster Generator")
+st.title("📖 Bible Study Roster Generator")
 
 # Session state for regenerating with relaxed rules and manual entries
 if "regenerate_mode" not in st.session_state:
@@ -117,5 +117,5 @@ if submitted or st.session_state.regenerate_mode:
         def convert_df(df):
             return df.to_csv(index=False).encode('utf-8')
 
-        st.download_button("\ud83d\udcc5 Download Roster (CSV)", convert_df(roster), "roster.csv", "text/csv")
-        st.download_button("\ud83d\udcc5 Download Summary (CSV)", convert_df(summary), "summary.csv", "text/csv")
+        st.download_button("📅 Download Roster (CSV)", convert_df(roster), "roster.csv", "text/csv")
+        st.download_button("📅 Download Summary (CSV)", convert_df(summary), "summary.csv", "text/csv")
