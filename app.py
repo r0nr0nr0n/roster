@@ -20,6 +20,12 @@ with st.form("setup_form"):
 
     members_raw = st.text_area("Enter Members (one per line)").strip()
     members = [m.strip() for m in members_raw.splitlines() if m.strip()]
+    # Remove duplicates and warn if needed
+    duplicates = [name for name in members if members.count(name) > 1]
+    members = list(dict.fromkeys(members))  # Deduplicate while keeping order
+    
+    if duplicates:
+        st.warning(f"Duplicate names removed: {', '.join(set(duplicates))}")
 
     st.markdown("### Optional: Mark member unavailability (by month number)")
     unavailable = {}
@@ -53,7 +59,9 @@ if submitted:
             month_map[key].append((row["Date"].strftime("%d %a"), row["Facilitator"]))
 
         months_sorted = sorted(month_map.keys(), key=lambda x: datetime.strptime(x, "%b %Y"))
-        rows = [months_sorted[i:i+3] for i in range(0, len(months_sorted), 3)]
+        # Limit columns to 3 max; fewer on smaller screens
+        num_cols = 2 if len(months_sorted) > 8 else 3
+        rows = [months_sorted[i:i+num_cols] for i in range(0, len(months_sorted), num_cols)]
         for row in rows:
             cols = st.columns(len(row))
             for idx, month in enumerate(row):
