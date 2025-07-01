@@ -131,7 +131,7 @@ def generate_and_display():
             st.session_state.regenerate_mode = True
             safe_rerun()
 
-       for d in tbas:
+        for d in tbas:
             # Create a container for each TBA date
             with st.container():
                 # Date row
