@@ -4,7 +4,7 @@ from datetime import datetime
 from helpers import get_meeting_dates, generate_roster, get_sg_public_holidays
 
 st.set_page_config(page_title="Bible Study Roster Generator", layout="centered")
-st.title("📖 Bible Study Roster Generator")
+st.title("Bible Study Roster Generator")
 
 def safe_rerun():
     if hasattr(st, "rerun"):
@@ -12,7 +12,7 @@ def safe_rerun():
     elif hasattr(st, "experimental_rerun"):
         st.experimental_rerun()
     else:
-        st.write("⚠️ Please refresh the page manually.")
+        st.write("Please refresh the page manually.")
 
 # Initialize session state variables
 initial_keys = {
@@ -120,7 +120,7 @@ def generate_and_display():
 
     st.session_state.tba_dates = [d for d in tbas]
     if tbas:
-        st.warning("⚠️ Some slots could not be assigned:")
+        st.warning("Some slots could not be assigned:")
         for d in tbas:
             st.markdown(f"- {d.strftime('%a, %d %b %Y')}")
 
@@ -144,7 +144,7 @@ def generate_and_display():
                 choices = ["Select name..."] + st.session_state.saved_members
                 sel = st.selectbox("", choices, key=f"manual_{d}")
             with col_btn:
-                if st.button("✔️", key=f"confirm_{d}", help="Confirm assignment"):
+                if st.button(":tick:", key=f"confirm_{d}", help="Confirm assignment"):
                     if sel and sel != "Select name...":
                         st.session_state.manual_fixes[d.isoformat()] = sel
                         st.session_state.regenerate_mode = False
@@ -166,7 +166,7 @@ def generate_and_display():
 
     def to_csv(df):
         return df.to_csv(index=False).encode("utf-8")
-    st.download_button("📅 Download Roster", to_csv(roster), "roster.csv", "text/csv")
-    st.download_button("📅 Download Summary", to_csv(summary), "summary.csv", "text/csv")
+    st.download_button("Download Roster", to_csv(roster), "roster.csv", "text/csv")
+    st.download_button("Download Summary", to_csv(summary), "summary.csv", "text/csv")
 
 generate_and_display()
