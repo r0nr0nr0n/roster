@@ -131,24 +131,23 @@ def generate_and_display():
             st.session_state.regenerate_mode = True
             safe_rerun()
 
-        for d in tbas:
-            # Layout: date | dropdown | confirm button
-            col_date, col_sel, col_btn = st.columns([0.1, 0.2, 0.1])
-            with col_date:
-                display_date = d.strftime("%d %a")
-                # Inline highlighting if today
-                if d == datetime.today().date():
-                    display_date = f":red[{display_date}]"
-                st.markdown(f"**{display_date}**")
-            with col_sel:
-                choices = ["Select name..."] + st.session_state.saved_members
-                sel = st.selectbox("", choices, key=f"manual_{d}")
-            with col_btn:
-                if st.button("✔️", key=f"confirm_{d}", help="Confirm assignment"):
-                    if sel and sel != "Select name...":
-                        st.session_state.manual_fixes[d.isoformat()] = sel
-                        st.session_state.regenerate_mode = False
-                        safe_rerun()
+       for d in tbas:
+            # Create a container for each TBA date
+            with st.container():
+                # Date row
+                st.markdown(f"**Date:** {d.strftime('%d %a')}")
+        
+            # Dropdown row
+            choices = ["Select name..."] + st.session_state.saved_members
+            sel = st.selectbox("", choices, key=f"manual_{d}")
+            
+            # Confirm button row
+            if st.button("✔️ Confirm", key=f"confirm_{d}", help="Confirm assignment"):
+                if sel and sel != "Select name...":
+                    st.session_state.manual_fixes[d.isoformat()] = sel
+                    st.session_state.regenerate_mode = False
+                    safe_rerun()
+
 
     # Recalculate summary after manual fixes
     summary = (
