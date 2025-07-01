@@ -127,7 +127,7 @@ def generate_and_display():
             cols = st.columns(2)
             for idx, d in enumerate(pair):
                 with cols[idx]:
-                    st.markdown(f"**{d.strftime('%d %a')}**")
+                    st.markdown(f"**{d.strftime('%d %b %a')}**")
                     sel = st.selectbox(
                         "", 
                         ["Select name..."] + st.session_state.saved_members,
