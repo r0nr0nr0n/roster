@@ -132,16 +132,19 @@ def generate_and_display():
             safe_rerun()
 
         for d in tbas:
-            # Create a container for each TBA date
-            with st.container():
-                # Date row
-                st.markdown(f"**Date:** {d.strftime('%d %a')}")
-        
-            # Dropdown row
+            # Create two columns for each TBA date
+            col_date, col_input = st.columns([1, 3])
+
+        with col_date:
+            # Display the date
+            st.markdown(f"**Date:** {d.strftime('%d %a')}")
+
+        with col_input:
+            # Dropdown for member selection
             choices = ["Select name..."] + st.session_state.saved_members
-            sel = st.selectbox("", choices, key=f"manual_{d}")
-            
-            # Confirm button row
+            sel = st.selectbox("", choices, key=f"manual_{d}", label_visibility="collapsed")
+
+            # Confirm button
             if st.button("✔️ Confirm", key=f"confirm_{d}", help="Confirm assignment"):
                 if sel and sel != "Select name...":
                     st.session_state.manual_fixes[d.isoformat()] = sel
