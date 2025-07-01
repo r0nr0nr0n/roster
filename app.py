@@ -12,6 +12,12 @@ if "regenerate_mode" not in st.session_state:
 if "manual_fixes" not in st.session_state:
     st.session_state.manual_fixes = {}
 
+# Additional triggers for button clicks
+if "manual_trigger" not in st.session_state:
+    st.session_state.manual_trigger = False
+if "loose_trigger" not in st.session_state:
+    st.session_state.loose_trigger = False
+
 with st.form("setup_form"):
     year = st.number_input("Year", value=datetime.now().year, min_value=2024, max_value=2100)
 
@@ -43,7 +49,34 @@ with st.form("setup_form"):
 
     submitted = st.form_submit_button("Generate Roster")
 
-if submitted or st.session_state.regenerate_mode:
+# If user clicked the "Regenerate without back-to-back restriction" button earlier, set flags
+if st.session_state.loose_trigger:
+    st.session_state.regenerate_mode = True
+    st.session_state.loose_trigger = False
+    st.experimental_rerun()
+
+# Handle manual assignment confirmation buttons - do outside the form to catch clicks immediately
+tba_confirmed = False
+if "tba_dates" in st.session_state:
+    for tba_date_str in st.session_state.tba_dates:
+        button_key = f"confirm_manual_{tba_date_str}"
+        if st.button(f"Confirm assignment for {datetime.strptime(tba_date_str, '%Y-%m-%d').strftime('%a, %d %b %Y')}", key=button_key):
+            chosen_key = f"manual_{tba_date_str}"
+            chosen = st.session_state.get(chosen_key, None)
+            if chosen:
+                st.session_state.manual_fixes[tba_date_str] = chosen
+                st.session_state.regenerate_mode = False
+                st.session_state.manual_trigger = True
+                tba_confirmed = True
+                st.experimental_rerun()
+
+# Also, if manual assignment confirmed, rerun with updated manual fixes
+if st.session_state.manual_trigger:
+    st.session_state.manual_trigger = False
+    st.experimental_rerun()
+
+# Proceed to generate roster if form submitted or regenerate_mode active or manual trigger fired
+if submitted or st.session_state.regenerate_mode or tba_confirmed or st.session_state.manual_trigger:
     if not members or not weeks:
         st.error("Please input both members and valid week selections.")
     else:
@@ -57,8 +90,8 @@ if submitted or st.session_state.regenerate_mode:
 
         # Apply manual fixes
         for fix_date, fixed_name in st.session_state.manual_fixes.items():
-            fix_date = datetime.strptime(fix_date, "%Y-%m-%d").date()
-            idx = roster[roster["Date"] == fix_date].index
+            fix_date_dt = datetime.strptime(fix_date, "%Y-%m-%d").date()
+            idx = roster[roster["Date"] == fix_date_dt].index
             if not idx.empty:
                 roster.at[idx[0], "Facilitator"] = fixed_name
 
@@ -95,19 +128,21 @@ if submitted or st.session_state.regenerate_mode:
             st.markdown("---")
             st.markdown("### Resolve TBA Slots")
 
+            # Save TBA dates to session state for manual assignments
+            st.session_state.tba_dates = [d.strftime("%Y-%m-%d") for d in tba_dates]
+
             if st.button("Regenerate without back-to-back restriction"):
-                st.session_state.regenerate_mode = True
-                st.rerun()
+                st.session_state.loose_trigger = True
+                st.experimental_rerun()
 
             for tba_date in tba_dates:
                 st.markdown(f"**Manually assign for {tba_date.strftime('%a, %d %b %Y')}:**")
                 chosen = st.selectbox(
-                    f"Assign someone:", members, key=f"manual_{tba_date}"
+                    "Assign someone:",
+                    members,
+                    key=f"manual_{tba_date.strftime('%Y-%m-%d')}"
                 )
-                if st.button(f"Confirm assignment for {tba_date}"):
-                    st.session_state.manual_fixes[str(tba_date)] = chosen
-                    st.session_state.regenerate_mode = False
-                    st.rerun()
+                # Confirmation button is handled outside the form
 
         st.markdown("### Assignment Summary")
         cols = st.columns(4)
