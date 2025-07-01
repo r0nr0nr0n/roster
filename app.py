@@ -144,7 +144,7 @@ def generate_and_display():
                 choices = ["Select name..."] + st.session_state.saved_members
                 sel = st.selectbox("", choices, key=f"manual_{d}")
             with col_btn:
-                if st.button(":tick:", key=f"confirm_{d}", help="Confirm assignment"):
+                if st.button("✔️", key=f"confirm_{d}", help="Confirm assignment"):
                     if sel and sel != "Select name...":
                         st.session_state.manual_fixes[d.isoformat()] = sel
                         st.session_state.regenerate_mode = False
